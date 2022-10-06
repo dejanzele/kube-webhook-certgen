@@ -1,6 +1,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/dejanzele/kube-webhook-certgen)](https://goreportcard.com/report/github.com/dejanzele/kube-webhook-certgen)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/dejanzele/kube-webhook-certgen?sort=semver)](https://github.com/dejanzele/kube-webhook-certgen/releases/latest)
-[![Docker Pulls](https://img.shields.io/docker/pulls/dejanzele/kube-webhook-certgen?color=blue)](https://hub.docker.com/r/dejanzele/kube-webhook-certgen/tags)
+[![Docker Pulls](https://img.shields.io/docker/pulls/dpejcev/kube-webhook-certgen?color=blue)](https://hub.docker.com/r/dpejcev/kube-webhook-certgen/tags)
 
 # Kubernetes webhook certificate generator and patcher
 
