@@ -5,7 +5,8 @@
 # Kubernetes webhook certificate generator and patcher
 
 This is repo is a fork from [jet/kube-webhook-certgen](https://github.com/jet/kube-webhook-certgen) as the original project is no longer maintained.
-This repo will diverge from [jet/kube-webhook-certgen](https://github.com/jet/kube-webhook-certgen) and [kubernetes/ingress-nginx](https://github.com/kubernetes/ingress-nginx/tree/main/images/kube-webhook-certgen)
+
+This project will diverge from [jet/kube-webhook-certgen](https://github.com/jet/kube-webhook-certgen) and [kubernetes/ingress-nginx](https://github.com/kubernetes/ingress-nginx/tree/main/images/kube-webhook-certgen)
 as it has a roadmap of its own.
 
 ## Overview
