@@ -1,0 +1,56 @@
+project_name: kube-webhook-certgen
+
+archives:
+  - format: zip
+    wrap_in_directory: "false"
+    replacements:
+      darwin: "macos"
+      amd64: "x86_64"
+    files:
+      - none*
+
+changelog:
+  use: "github"
+  filters:
+    exclude:
+      - "^V2:"
+
+checksum:
+  name_template: "checksums.txt"
+
+dockers:
+  -
+    image_templates:
+      - "ghcr.io/dejanzele/kube-webhook-certgen:{{ .Major }}"
+      - "ghcr.io/dejanzele/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}"
+      - "ghcr.io/dejanzele/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+      - "ghcr.io/dejanzele/kube-webhook-certgen:latest"
+    dockerfile: Dockerfile
+
+dist: "build/dist"
+
+release:
+  draft: false
+  header: |
+    ## {{ .Version }} ({{ .Date }})
+    See https://github.com/dejanzele/kube-webhook-certgen for download links and documentation
+    ## Main downloads
+    - [Linux Intel 64 bit](https://github.com/dejanzele/kube-webhook-certgen/releases/download/{{ .Tag }}/kube-webhook-certgen_{{ .Version }}_linux_x86_64.zip)
+    - [MacOS Universal](https://github.com/dejanzele/kube-webhook-certgen/releases/download/{{ .Tag }}/kube-webhook-certgen_{{ .Version }}_macos_all.zip)
+    - [Windows Intel 64 bit](https://github.com/dejanzele/kube-webhook-certgen/releases/download/{{ .Tag }}/kube-webhook-certgen{{ .Version }}_windows_x86_64.zip)
+
+snapshot:
+  name_template: "{{ .Tag }}"
+
+source:
+  enabled: true
+  name_template: "{{ .ProjectName }}_{{ .Version }}_source"
+  format: "zip"
+
+builds:
+  - id: "linux"
+    goos:
+      - "linux"
+    goarch:
+      - "amd64"
+    mod_timestamp: "{{ .CommitTimestamp }}"

@@ -2,14 +2,16 @@ package certs
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -17,6 +19,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func TestCertificateCreation(t *testing.T) {
+	t.Parallel()
 
 	ca, cert, key, err := GenerateCerts("localhost")
 	assert.NoError(t, err)
@@ -32,32 +35,41 @@ func TestCertificateCreation(t *testing.T) {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			RootCAs:    caCertPool,
-			ServerName: "localhost"}}
+			ServerName: "localhost",
+			MinVersion: tls.VersionTLS12,
+		},
+	}
 
 	ts := httptest.NewUnstartedServer(http.HandlerFunc(handler))
-	ts.TLS = &tls.Config{Certificates: []tls.Certificate{c}}
+	ts.TLS = &tls.Config{Certificates: []tls.Certificate{c}, MinVersion: tls.VersionTLS12}
 	ts.StartTLS()
 	defer ts.Close()
 
+	ctx := context.Background()
+
 	client := &http.Client{Transport: tr}
-	res, err := client.Get(ts.URL)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, ts.URL, http.NoBody)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.Do(req)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		t.Errorf("Response code was %v; want 200", res.StatusCode)
+		t.Errorf("response code was %v; want 200", res.StatusCode)
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	expected := []byte("Hello World")
 
-	if bytes.Compare(expected, body) != 0 {
-		t.Errorf("Response body was '%v'; want '%v'", expected, body)
+	if !bytes.Equal(expected, body) {
+		t.Errorf("response body was '%v'; want '%v'", expected, body)
 	}
 }

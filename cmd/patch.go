@@ -9,15 +9,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	patch = &cobra.Command{
-		Use:    "patch",
-		Short:  "Patch a validatingwebhookconfiguration and mutatingwebhookconfiguration 'webhook-name' by using the ca from 'secret-name' in 'namespace'",
-		Long:   "Patch a validatingwebhookconfiguration and mutatingwebhookconfiguration 'webhook-name' by using the ca from 'secret-name' in 'namespace'",
-		PreRun: prePatchCommand,
-		RunE:   patchCommand,
-	}
-)
+var patch = &cobra.Command{
+	Use:    "patch",
+	Short:  "Patch a validatingwebhookconfiguration and mutatingwebhookconfiguration 'webhook-name' by using the ca from 'secret-name' in 'namespace'",
+	Long:   "Patch a validatingwebhookconfiguration and mutatingwebhookconfiguration 'webhook-name' by using the ca from 'secret-name' in 'namespace'",
+	PreRun: prePatchCommand,
+	RunE:   patchCommand,
+}
 
 func prePatchCommand(cmd *cobra.Command, args []string) {
 	configureLogging(cmd, args)
@@ -31,7 +29,6 @@ func prePatchCommand(cmd *cobra.Command, args []string) {
 	case "Ignore":
 	case "Fail":
 		failurePolicy = cfg.patchFailurePolicy
-		break
 	default:
 		log.Fatalf("patch-failure-policy %s is not valid", cfg.patchFailurePolicy)
 		os.Exit(1)
@@ -69,7 +66,7 @@ func init() {
 	patch.Flags().BoolVar(&cfg.patchMutating, "patch-mutating", true, "If true, patch mutatingwebhookconfiguration")
 	patch.Flags().StringVar(&cfg.patchFailurePolicy, "patch-failure-policy", "", "If set, patch the webhooks with this failure policy. Valid options are Ignore or Fail")
 	create.Flags().StringVar(&cfg.admissionRegistrationVersion, "admission-registration-version", "v1", "admissionregistration.k8s.io api version")
-	patch.MarkFlagRequired("secret-name")
-	patch.MarkFlagRequired("namespace")
-	patch.MarkFlagRequired("webhook-name")
+	_ = patch.MarkFlagRequired("secret-name")
+	_ = patch.MarkFlagRequired("namespace")
+	_ = patch.MarkFlagRequired("webhook-name")
 }

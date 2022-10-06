@@ -3,13 +3,14 @@ package k8s
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"k8s.io/api/admissionregistration/v1beta1"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
-	"math/rand"
-	"testing"
 )
 
 const (
@@ -22,18 +23,20 @@ func genSecretData() (ca, cert, key []byte) {
 	ca = make([]byte, 4)
 	cert = make([]byte, 4)
 	key = make([]byte, 4)
-	rand.Read(cert)
-	rand.Read(key)
+	_, _ = rand.Read(cert)
+	_, _ = rand.Read(key)
 	return
 }
 
-func newTestSimpleK8s() *k8s {
-	return &k8s{
+func newTestSimpleK8s() *K8s {
+	return &K8s{
 		clientset: fake.NewSimpleClientset(),
 	}
 }
 
 func TestGetCaFromCertificate(t *testing.T) {
+	t.Parallel()
+
 	k := newTestSimpleK8s()
 
 	ca, cert, key := genSecretData()
@@ -47,7 +50,8 @@ func TestGetCaFromCertificate(t *testing.T) {
 		Data: map[string][]byte{caName: ca, "cert": cert, "key": key},
 	}
 
-	k.clientset.CoreV1().Secrets(testNamespace).Create(context.Background(), secret, metav1.CreateOptions{})
+	_, err := k.clientset.CoreV1().Secrets(testNamespace).Create(context.Background(), secret, metav1.CreateOptions{})
+	assert.NoError(t, err)
 
 	retrievedCa, err := k.GetCaFromSecret(testSecretName, testNamespace, caName)
 	assert.NoError(t, err)
@@ -57,6 +61,8 @@ func TestGetCaFromCertificate(t *testing.T) {
 }
 
 func TestSaveCertsToSecret(t *testing.T) {
+	t.Parallel()
+
 	k := newTestSimpleK8s()
 
 	ca, cert, key := genSecretData()
@@ -67,7 +73,8 @@ func TestSaveCertsToSecret(t *testing.T) {
 	certName := "cert.tls"
 	keyName := "key.tls"
 
-	k.SaveCertsToSecret(ctx, testSecretName, testNamespace, caName, certName, keyName, ca, cert, key)
+	err := k.SaveCertsToSecret(ctx, testSecretName, testNamespace, caName, certName, keyName, ca, cert, key)
+	assert.NoError(t, err)
 
 	secret, _ := k.clientset.CoreV1().Secrets(testNamespace).Get(context.Background(), testSecretName, metav1.GetOptions{})
 
@@ -81,6 +88,8 @@ func TestSaveCertsToSecret(t *testing.T) {
 }
 
 func TestSaveThenLoadSecret(t *testing.T) {
+	t.Parallel()
+
 	k := newTestSimpleK8s()
 	ca, cert, key := genSecretData()
 
@@ -90,7 +99,8 @@ func TestSaveThenLoadSecret(t *testing.T) {
 	certName := "cert.tls"
 	keyName := "key.tls"
 
-	k.SaveCertsToSecret(ctx, testSecretName, testNamespace, caName, certName, keyName, ca, cert, key)
+	err := k.SaveCertsToSecret(ctx, testSecretName, testNamespace, caName, certName, keyName, ca, cert, key)
+	assert.NoError(t, err)
 	retrievedCert, err := k.GetCaFromSecret(testSecretName, testNamespace, caName)
 	assert.NoError(t, err)
 	if !bytes.Equal(retrievedCert, ca) {
@@ -99,13 +109,15 @@ func TestSaveThenLoadSecret(t *testing.T) {
 }
 
 func TestPatchWebhookConfigurations(t *testing.T) {
+	t.Parallel()
+
 	k := newTestSimpleK8s()
 
 	ca, _, _ := genSecretData()
 
 	ctx := context.Background()
 
-	k.clientset.
+	_, err := k.clientset.
 		AdmissionregistrationV1beta1().
 		MutatingWebhookConfigurations().
 		Create(context.Background(), &v1beta1.MutatingWebhookConfiguration{
@@ -113,9 +125,11 @@ func TestPatchWebhookConfigurations(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: testWebhookName,
 			},
-			Webhooks: []v1beta1.MutatingWebhook{{Name: "m1"}, {Name: "m2"}}}, metav1.CreateOptions{})
+			Webhooks: []v1beta1.MutatingWebhook{{Name: "m1"}, {Name: "m2"}},
+		}, metav1.CreateOptions{})
+	assert.NoError(t, err)
 
-	k.clientset.
+	_, err = k.clientset.
 		AdmissionregistrationV1beta1().
 		ValidatingWebhookConfigurations().
 		Create(context.Background(), &v1beta1.ValidatingWebhookConfiguration{
@@ -123,16 +137,17 @@ func TestPatchWebhookConfigurations(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: testWebhookName,
 			},
-			Webhooks: []v1beta1.ValidatingWebhook{{Name: "v1"}, {Name: "v2"}}}, metav1.CreateOptions{})
+			Webhooks: []v1beta1.ValidatingWebhook{{Name: "v1"}, {Name: "v2"}},
+		}, metav1.CreateOptions{})
+	assert.NoError(t, err)
 
-	err := k.PatchWebhookConfigurations(ctx, testWebhookName, ca, "fail", true, true, "v1beta1")
+	err = k.PatchWebhookConfigurations(ctx, testWebhookName, ca, "fail", true, true, "v1beta1")
 	assert.NoError(t, err)
 
 	whmut, err := k.clientset.
 		AdmissionregistrationV1beta1().
 		MutatingWebhookConfigurations().
 		Get(context.Background(), testWebhookName, metav1.GetOptions{})
-
 	if err != nil {
 		t.Error(err)
 	}
@@ -141,7 +156,6 @@ func TestPatchWebhookConfigurations(t *testing.T) {
 		AdmissionregistrationV1beta1().
 		MutatingWebhookConfigurations().
 		Get(context.Background(), testWebhookName, metav1.GetOptions{})
-
 	if err != nil {
 		t.Error(err)
 	}
@@ -170,5 +184,4 @@ func TestPatchWebhookConfigurations(t *testing.T) {
 	if whval.Webhooks[1].FailurePolicy == nil {
 		t.Errorf("Expected second validating webhook failure policy to be set to %s", "fail")
 	}
-
 }

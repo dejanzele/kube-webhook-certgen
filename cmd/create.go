@@ -2,21 +2,20 @@ package cmd
 
 import (
 	"context"
+
 	"github.com/jet/kube-webhook-certgen/pkg/certs"
 	"github.com/jet/kube-webhook-certgen/pkg/k8s"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-var (
-	create = &cobra.Command{
-		Use:    "create",
-		Short:  "Generate a ca and server cert+key and store the results in a secret 'secret-name' in 'namespace'",
-		Long:   "Generate a ca and server cert+key and store the results in a secret 'secret-name' in 'namespace'",
-		PreRun: configureLogging,
-		RunE:   createCommand,
-	}
-)
+var create = &cobra.Command{
+	Use:    "create",
+	Short:  "Generate a ca and server cert+key and store the results in a secret 'secret-name' in 'namespace'",
+	Long:   "Generate a ca and server cert+key and store the results in a secret 'secret-name' in 'namespace'",
+	PreRun: configureLogging,
+	RunE:   createCommand,
+}
 
 func createCommand(_ *cobra.Command, _ []string) error {
 	k := k8s.New(cfg.kubeconfig)

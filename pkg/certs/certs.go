@@ -7,14 +7,15 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"github.com/pkg/errors"
 	"math/big"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
-// GenerateCerts venerates a ca with a leaf certificate and key and returns the ca, cert and key as PEM encoded slices
+// GenerateCerts venerates a ca with a leaf certificate and key and returns the ca, cert and key as PEM encoded slices.
 func GenerateCerts(host string) (ca []byte, cert []byte, key []byte, err error) {
 	notBefore := time.Now().Add(time.Minute * -5)
 	notAfter := notBefore.Add(100 * 365 * 24 * time.Hour)

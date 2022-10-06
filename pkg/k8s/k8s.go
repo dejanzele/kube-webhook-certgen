@@ -2,19 +2,20 @@ package k8s
 
 import (
 	"context"
+
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	admissionv1 "k8s.io/api/admissionregistration/v1"
 	admissionv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-type k8s struct {
+type K8s struct {
 	clientset kubernetes.Interface
 }
 
@@ -25,7 +26,7 @@ const (
 	admissionRegistrationV1beta1 AdmissionRegistrationVersion = "v1beta1"
 )
 
-func New(kubeconfig string) *k8s {
+func New(kubeconfig string) *K8s {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		log.WithError(err).Fatal("error building kubernetes config")
@@ -36,12 +37,12 @@ func New(kubeconfig string) *k8s {
 		log.WithError(err).Fatal("error creating kubernetes client")
 	}
 
-	return &k8s{clientset: c}
+	return &K8s{clientset: c}
 }
 
 // PatchWebhookConfigurations will patch validatingWebhook and mutatingWebhook clientConfig configurations with
-// the provided ca data. If failurePolicy is provided, patch all webhooks with this value
-func (k8s *k8s) PatchWebhookConfigurations(
+// the provided ca data. If failurePolicy is provided, patch all webhooks with this value.
+func (k8s *K8s) PatchWebhookConfigurations(
 	ctx context.Context,
 	configurationNames string,
 	ca []byte,
@@ -50,7 +51,6 @@ func (k8s *k8s) PatchWebhookConfigurations(
 	patchValidating bool,
 	version AdmissionRegistrationVersion,
 ) error {
-
 	log.Infof(
 		"patching webhook configurations '%s' mutating=%t, validating=%t, failurePolicy=%s",
 		configurationNames, patchMutating, patchValidating, failurePolicy,
@@ -77,7 +77,7 @@ func (k8s *k8s) PatchWebhookConfigurations(
 	return nil
 }
 
-func (k8s *k8s) patchValidatingWebhookConfiguration(
+func (k8s *K8s) patchValidatingWebhookConfiguration(
 	ctx context.Context,
 	version AdmissionRegistrationVersion,
 	configurationNames string,
@@ -96,7 +96,7 @@ func (k8s *k8s) patchValidatingWebhookConfiguration(
 	}
 }
 
-func (k8s *k8s) patchValidatingWebhookConfigurationV1beta1(
+func (k8s *K8s) patchValidatingWebhookConfigurationV1beta1(
 	ctx context.Context,
 	configurationNames string,
 	ca []byte,
@@ -106,7 +106,6 @@ func (k8s *k8s) patchValidatingWebhookConfigurationV1beta1(
 		AdmissionregistrationV1beta1().
 		ValidatingWebhookConfigurations().
 		Get(ctx, configurationNames, metav1.GetOptions{})
-
 	if err != nil {
 		return errors.Wrap(err, "failed getting admissionregistration.k8s.io/v1beta1 validating webhook")
 	}
@@ -129,7 +128,7 @@ func (k8s *k8s) patchValidatingWebhookConfigurationV1beta1(
 	return nil
 }
 
-func (k8s *k8s) patchValidatingWebhookConfigurationV1(
+func (k8s *K8s) patchValidatingWebhookConfigurationV1(
 	ctx context.Context,
 	configurationNames string,
 	ca []byte,
@@ -139,7 +138,6 @@ func (k8s *k8s) patchValidatingWebhookConfigurationV1(
 		AdmissionregistrationV1().
 		ValidatingWebhookConfigurations().
 		Get(ctx, configurationNames, metav1.GetOptions{})
-
 	if err != nil {
 		return errors.Wrap(err, "failed getting admissionregistration.k8s.io/v1 validating webhook")
 	}
@@ -162,7 +160,7 @@ func (k8s *k8s) patchValidatingWebhookConfigurationV1(
 	return nil
 }
 
-func (k8s *k8s) patchMutatingWebhookConfiguration(
+func (k8s *K8s) patchMutatingWebhookConfiguration(
 	ctx context.Context,
 	version AdmissionRegistrationVersion,
 	configurationNames string,
@@ -181,7 +179,7 @@ func (k8s *k8s) patchMutatingWebhookConfiguration(
 	}
 }
 
-func (k8s *k8s) patchMutatingWebhookConfigurationV1beta1(
+func (k8s *K8s) patchMutatingWebhookConfigurationV1beta1(
 	ctx context.Context,
 	configurationNames string,
 	ca []byte,
@@ -191,7 +189,6 @@ func (k8s *k8s) patchMutatingWebhookConfigurationV1beta1(
 		AdmissionregistrationV1beta1().
 		MutatingWebhookConfigurations().
 		Get(ctx, configurationNames, metav1.GetOptions{})
-
 	if err != nil {
 		return errors.Wrap(err, "failed getting admissionregistration.k8s.io/v1beta1 mutating webhook")
 	}
@@ -214,7 +211,7 @@ func (k8s *k8s) patchMutatingWebhookConfigurationV1beta1(
 	return nil
 }
 
-func (k8s *k8s) patchMutatingWebhookConfigurationV1(
+func (k8s *K8s) patchMutatingWebhookConfigurationV1(
 	ctx context.Context,
 	configurationNames string,
 	ca []byte,
@@ -224,7 +221,6 @@ func (k8s *k8s) patchMutatingWebhookConfigurationV1(
 		AdmissionregistrationV1().
 		MutatingWebhookConfigurations().
 		Get(ctx, configurationNames, metav1.GetOptions{})
-
 	if err != nil {
 		return errors.Wrap(err, "failed getting admissionregistration.k8s.io/v1 mutating webhook")
 	}
@@ -248,8 +244,8 @@ func (k8s *k8s) patchMutatingWebhookConfigurationV1(
 }
 
 // GetCaFromSecret will check for the presence of a secret. If it exists, will return the content of the
-// "ca" from the secret, otherwise will return nil
-func (k8s *k8s) GetCaFromSecret(secretName string, namespace string, caName string) ([]byte, error) {
+// "ca" from the secret, otherwise will return nil.
+func (k8s *K8s) GetCaFromSecret(secretName string, namespace string, caName string) ([]byte, error) {
 	log.Debugf("getting secret '%s' in namespace '%s'", secretName, namespace)
 	secret, err := k8s.clientset.CoreV1().Secrets(namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 	if err != nil {
@@ -269,8 +265,7 @@ func (k8s *k8s) GetCaFromSecret(secretName string, namespace string, caName stri
 }
 
 // SaveCertsToSecret saves the provided ca, cert and key into a secret in the specified namespace.
-func (k8s *k8s) SaveCertsToSecret(ctx context.Context, secretName, namespace, caName, certName, keyName string, ca, cert, key []byte) error {
-
+func (k8s *K8s) SaveCertsToSecret(ctx context.Context, secretName, namespace, caName, certName, keyName string, ca, cert, key []byte) error {
 	log.Debugf("saving to secret '%s' in namespace '%s'", secretName, namespace)
 	secret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{

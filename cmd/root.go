@@ -1,10 +1,11 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/onrik/logrus/filename"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var (
@@ -37,7 +38,7 @@ var (
 	failurePolicy string
 )
 
-// Execute is the main entry point for the program
+// Execute is the main entry point for the program.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
