@@ -4,7 +4,6 @@ import (
 	"github.com/onrik/logrus/filename"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	admissionv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	"os"
 )
 
@@ -19,21 +18,23 @@ var (
 	}
 
 	cfg = struct {
-		logLevel           string
-		logfmt             string
-		secretName         string
-		namespace          string
-		certName           string
-		keyName            string
-		host               string
-		webhookName        string
-		patchValidating    bool
-		patchMutating      bool
-		patchFailurePolicy string
-		kubeconfig         string
+		logLevel                     string
+		logfmt                       string
+		secretName                   string
+		namespace                    string
+		caName                       string
+		certName                     string
+		keyName                      string
+		host                         string
+		webhookName                  string
+		admissionRegistrationVersion string
+		patchValidating              bool
+		patchMutating                bool
+		patchFailurePolicy           string
+		kubeconfig                   string
 	}{}
 
-	failurePolicy admissionv1beta1.FailurePolicyType
+	failurePolicy string
 )
 
 // Execute is the main entry point for the program
@@ -50,6 +51,7 @@ func init() {
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.TraceLevel)
 	rootCmd.Flags()
+	create.Flags().StringVar(&cfg.caName, "ca-name", "ca.crt", "Name of ca file in the secret")
 	rootCmd.PersistentFlags().StringVar(&cfg.logLevel, "log-level", "info", "Log level: panic|fatal|error|warn|info|debug|trace")
 	rootCmd.PersistentFlags().StringVar(&cfg.logfmt, "log-format", "json", "Log format: text|json")
 	rootCmd.PersistentFlags().StringVar(&cfg.kubeconfig, "kubeconfig", "", "Path to kubeconfig file: e.g. ~/.kube/kind-config-kind")

@@ -3,8 +3,8 @@ package k8s
 import (
 	"bytes"
 	"context"
+	"github.com/stretchr/testify/assert"
 	"k8s.io/api/admissionregistration/v1beta1"
-	admissionv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
@@ -16,11 +16,6 @@ const (
 	testWebhookName = "c7c95710-d8c3-4cc3-a2a8-8d2b46909c76"
 	testSecretName  = "15906410-af2a-4f9b-8a2d-c08ffdd5e129"
 	testNamespace   = "7cad5f92-c0d5-4bc9-87a3-6f44d5a5619d"
-)
-
-var (
-	fail   = admissionv1beta1.Fail
-	ignore = admissionv1beta1.Ignore
 )
 
 func genSecretData() (ca, cert, key []byte) {
@@ -43,16 +38,19 @@ func TestGetCaFromCertificate(t *testing.T) {
 
 	ca, cert, key := genSecretData()
 
+	caName := "ca.crt"
+
 	secret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: testSecretName,
 		},
-		Data: map[string][]byte{"ca": ca, "cert": cert, "key": key},
+		Data: map[string][]byte{caName: ca, "cert": cert, "key": key},
 	}
 
 	k.clientset.CoreV1().Secrets(testNamespace).Create(context.Background(), secret, metav1.CreateOptions{})
 
-	retrievedCa := k.GetCaFromSecret(testSecretName, testNamespace)
+	retrievedCa, err := k.GetCaFromSecret(testSecretName, testNamespace, caName)
+	assert.NoError(t, err)
 	if !bytes.Equal(retrievedCa, ca) {
 		t.Error("Was not able to retrieve CA information that was saved")
 	}
@@ -63,15 +61,21 @@ func TestSaveCertsToSecret(t *testing.T) {
 
 	ca, cert, key := genSecretData()
 
-	k.SaveCertsToSecret(testSecretName, testNamespace, "cert", "key", ca, cert, key)
+	ctx := context.Background()
+
+	caName := "ca.crt"
+	certName := "cert.tls"
+	keyName := "key.tls"
+
+	k.SaveCertsToSecret(ctx, testSecretName, testNamespace, caName, certName, keyName, ca, cert, key)
 
 	secret, _ := k.clientset.CoreV1().Secrets(testNamespace).Get(context.Background(), testSecretName, metav1.GetOptions{})
 
-	if !bytes.Equal(secret.Data["cert"], cert) {
+	if !bytes.Equal(secret.Data[certName], cert) {
 		t.Error("'cert' saved data does not match retrieved")
 	}
 
-	if !bytes.Equal(secret.Data["key"], key) {
+	if !bytes.Equal(secret.Data[keyName], key) {
 		t.Error("'key' saved data does not match retrieved")
 	}
 }
@@ -79,8 +83,16 @@ func TestSaveCertsToSecret(t *testing.T) {
 func TestSaveThenLoadSecret(t *testing.T) {
 	k := newTestSimpleK8s()
 	ca, cert, key := genSecretData()
-	k.SaveCertsToSecret(testSecretName, testNamespace, "cert", "key", ca, cert, key)
-	retrievedCert := k.GetCaFromSecret(testSecretName, testNamespace)
+
+	ctx := context.Background()
+
+	caName := "ca.crt"
+	certName := "cert.tls"
+	keyName := "key.tls"
+
+	k.SaveCertsToSecret(ctx, testSecretName, testNamespace, caName, certName, keyName, ca, cert, key)
+	retrievedCert, err := k.GetCaFromSecret(testSecretName, testNamespace, caName)
+	assert.NoError(t, err)
 	if !bytes.Equal(retrievedCert, ca) {
 		t.Error("Was not able to retrieve CA information that was saved")
 	}
@@ -90,6 +102,8 @@ func TestPatchWebhookConfigurations(t *testing.T) {
 	k := newTestSimpleK8s()
 
 	ca, _, _ := genSecretData()
+
+	ctx := context.Background()
 
 	k.clientset.
 		AdmissionregistrationV1beta1().
@@ -111,7 +125,8 @@ func TestPatchWebhookConfigurations(t *testing.T) {
 			},
 			Webhooks: []v1beta1.ValidatingWebhook{{Name: "v1"}, {Name: "v2"}}}, metav1.CreateOptions{})
 
-	k.PatchWebhookConfigurations(testWebhookName, ca, &fail, true, true)
+	err := k.PatchWebhookConfigurations(ctx, testWebhookName, ca, "fail", true, true, "v1beta1")
+	assert.NoError(t, err)
 
 	whmut, err := k.clientset.
 		AdmissionregistrationV1beta1().
@@ -144,16 +159,16 @@ func TestPatchWebhookConfigurations(t *testing.T) {
 		t.Error("Ca retrieved from second validating webhook configuration does not match")
 	}
 	if whmut.Webhooks[0].FailurePolicy == nil {
-		t.Errorf("Expected first mutating webhook failure policy to be set to %s", fail)
+		t.Errorf("Expected first mutating webhook failure policy to be set to %s", "fail")
 	}
 	if whmut.Webhooks[1].FailurePolicy == nil {
-		t.Errorf("Expected second mutating webhook failure policy to be set to %s", fail)
+		t.Errorf("Expected second mutating webhook failure policy to be set to %s", "fail")
 	}
 	if whval.Webhooks[0].FailurePolicy == nil {
-		t.Errorf("Expected first validating webhook failure policy to be set to %s", fail)
+		t.Errorf("Expected first validating webhook failure policy to be set to %s", "fail")
 	}
 	if whval.Webhooks[1].FailurePolicy == nil {
-		t.Errorf("Expected second validating webhook failure policy to be set to %s", fail)
+		t.Errorf("Expected second validating webhook failure policy to be set to %s", "fail")
 	}
 
 }

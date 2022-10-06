@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/jet/kube-webhook-certgen/pkg/certs"
 	"github.com/jet/kube-webhook-certgen/pkg/k8s"
 	log "github.com/sirupsen/logrus"
@@ -13,20 +14,41 @@ var (
 		Short:  "Generate a ca and server cert+key and store the results in a secret 'secret-name' in 'namespace'",
 		Long:   "Generate a ca and server cert+key and store the results in a secret 'secret-name' in 'namespace'",
 		PreRun: configureLogging,
-		Run:    createCommand}
+		RunE:   createCommand,
+	}
 )
 
-func createCommand(cmd *cobra.Command, args []string) {
+func createCommand(_ *cobra.Command, _ []string) error {
 	k := k8s.New(cfg.kubeconfig)
-	ca := k.GetCaFromSecret(cfg.secretName, cfg.namespace)
-	if ca == nil {
-		log.Info("creating new secret")
-		newCa, newCert, newKey := certs.GenerateCerts(cfg.host)
-		ca = newCa
-		k.SaveCertsToSecret(cfg.secretName, cfg.namespace, cfg.certName, cfg.keyName, ca, newCert, newKey)
-	} else {
-		log.Info("secret already exists")
+	ca, err := k.GetCaFromSecret(cfg.secretName, cfg.namespace, cfg.caName)
+	if err != nil {
+		return err
 	}
+	if ca == nil {
+		log.Infof("creating new secret %s/%s", cfg.namespace, cfg.secretName)
+		newCa, newCert, newKey, err := certs.GenerateCerts(cfg.host)
+		if err != nil {
+			return err
+		}
+		ca = newCa
+		if err := k.SaveCertsToSecret(
+			context.Background(),
+			cfg.secretName,
+			cfg.namespace,
+			cfg.caName,
+			cfg.certName,
+			cfg.keyName,
+			ca,
+			newCert,
+			newKey,
+		); err != nil {
+			return err
+		}
+	} else {
+		log.Infof("secret %s/%s already exists", cfg.namespace, cfg.secretName)
+	}
+
+	return nil
 }
 
 func init() {

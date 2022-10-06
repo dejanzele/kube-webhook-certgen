@@ -1,9 +1,12 @@
-[![Build Status](https://dev.azure.com/jet-opensource/opensource/_apis/build/status/kube-webhook-certgen/kube-webhook-certgen.master?branchName=master)](https://dev.azure.com/jet-opensource/opensource/_build/latest?definitionId=15&branchName=master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/jet/kube-webhook-certgen)](https://goreportcard.com/report/github.com/jet/kube-webhook-certgen)
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/jet/kube-webhook-certgen?sort=semver)](https://github.com/jet/kube-webhook-certgen/releases/latest)
-[![Docker Pulls](https://img.shields.io/docker/pulls/jettech/kube-webhook-certgen?color=blue)](https://hub.docker.com/r/jettech/kube-webhook-certgen/tags)
+[![Go Report Card](https://goreportcard.com/badge/github.com/dejanzele/kube-webhook-certgen)](https://goreportcard.com/report/github.com/dejanzele/kube-webhook-certgen)
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/dejanzele/kube-webhook-certgen?sort=semver)](https://github.com/dejanzele/kube-webhook-certgen/releases/latest)
+[![Docker Pulls](https://img.shields.io/docker/pulls/dejanzele/kube-webhook-certgen?color=blue)](https://hub.docker.com/r/dejanzele/kube-webhook-certgen/tags)
 
 # Kubernetes webhook certificate generator and patcher
+
+This is repo is a fork from [jet/kube-webhook-certgen](https://github.com/jet/kube-webhook-certgen) as the original project is no longer maintained.
+This repo will diverge from [jet/kube-webhook-certgen](https://github.com/jet/kube-webhook-certgen) and [kubernetes/ingress-nginx](https://github.com/kubernetes/ingress-nginx/tree/main/images/kube-webhook-certgen)
+as it has a roadmap of its own.
 
 ## Overview
 Generates a CA and leaf certificate with a long (100y) expiration, then patches [Kubernetes Admission Webhooks](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
@@ -33,10 +36,11 @@ Available Commands:
   version     Prints the CLI version information
 
 Flags:
-  -h, --help                help for kube-webhook-certgen
-      --kubeconfig string   Path to kubeconfig file: e.g. ~/.kube/kind-config-kind
-      --log-format string   Log format: text|json (default "text")
-      --log-level string    Log level: panic|fatal|error|warn|info|debug|trace (default "info")
+  -h, --help                           help for kube-webhook-certgen
+      --admission-registration-version admissionregistration.k8s.io api version
+      --kubeconfig string              Path to kubeconfig file: e.g. ~/.kube/kind-config-kind
+      --log-format string              Log format: text|json (default "text")
+      --log-level string               Log level: panic|fatal|error|warn|info|debug|trace (default "info")
 ```
 
 ### Create
@@ -82,5 +86,6 @@ Global Flags:
       --log-level string    Log level: panic|fatal|error|warn|info|debug|trace (default "info")
 ```
 
-## Known Users
-- [stable/prometheus-operator](https://github.com/helm/charts/tree/master/stable/prometheus-operator) helm chart
+## Recent changes
+* Updated go version to v1.19
+* Added support for `--admission-registration-version` flag which allows users to select which version of admissionregistration.k8s.io they want to use (v1 or v1beta1)

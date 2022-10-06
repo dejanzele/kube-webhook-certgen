@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -17,7 +18,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func TestCertificateCreation(t *testing.T) {
 
-	ca, cert, key := GenerateCerts("localhost")
+	ca, cert, key, err := GenerateCerts("localhost")
+	assert.NoError(t, err)
 
 	c, err := tls.X509KeyPair(cert, key)
 	if err != nil {
