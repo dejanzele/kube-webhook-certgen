@@ -31,7 +31,7 @@ jobs:
       - name: "Modules"
         run: "go mod download"
       - name: "Test"
-        run: go test -json ./internal/... > test.json
+        run: go test -json ./cmd/... ./pkg/... > test.json
       - name: "Annotate"
         if: always()
         uses: guyarb/golang-test-annotations@v0.6.0
