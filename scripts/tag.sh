@@ -24,7 +24,7 @@ make build
 git add .
 git commit -m "v${TGT}" || true
 
-git tag "v${TGT}"
+git tag "v${TGT}" -m "v${TGT}"
 
 git push
 git push --tags
