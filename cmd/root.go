@@ -27,6 +27,8 @@ var (
 		certName                     string
 		keyName                      string
 		host                         string
+		crds                         string
+		crdAPIGroups                 string
 		webhookName                  string
 		admissionRegistrationVersion string
 		patchValidating              bool

@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/jet/kube-webhook-certgen/core"
 	"github.com/spf13/cobra"
+
+	"github.com/dejanzele/kube-webhook-certgen/core"
 )
 
 var version = &cobra.Command{

@@ -3,10 +3,11 @@ package cmd
 import (
 	"context"
 
-	"github.com/jet/kube-webhook-certgen/pkg/certs"
-	"github.com/jet/kube-webhook-certgen/pkg/k8s"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/dejanzele/kube-webhook-certgen/pkg/certs"
+	"github.com/dejanzele/kube-webhook-certgen/pkg/k8s"
 )
 
 var create = &cobra.Command{
@@ -18,7 +19,10 @@ var create = &cobra.Command{
 }
 
 func createCommand(_ *cobra.Command, _ []string) error {
-	k := k8s.New(cfg.kubeconfig)
+	k, err := k8s.New(newKubernetesClients(cfg.kubeconfig))
+	if err != nil {
+		return err
+	}
 	ca, err := k.GetCaFromSecret(cfg.secretName, cfg.namespace, cfg.caName)
 	if err != nil {
 		return err

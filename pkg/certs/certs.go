@@ -38,7 +38,15 @@ func GenerateCerts(host string) (ca []byte, cert []byte, key []byte, err error) 
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
 		IsCA:                  true,
-		Subject:               pkix.Name{Organization: []string{host}},
+		Subject:               pkix.Name{Organization: []string{"nil1"}},
+	}
+	hosts := strings.Split(host, ",")
+	for _, h := range hosts {
+		if ip := net.ParseIP(h); ip != nil {
+			rootTemplate.IPAddresses = append(rootTemplate.IPAddresses, ip)
+		} else {
+			rootTemplate.DNSNames = append(rootTemplate.DNSNames, h)
+		}
 	}
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, &rootTemplate, &rootTemplate, &rootKey.PublicKey, rootKey)
@@ -54,6 +62,9 @@ func GenerateCerts(host string) (ca []byte, cert []byte, key []byte, err error) 
 	}
 
 	key, err = encodeKey(leafKey)
+	if err != nil {
+		return nil, nil, nil, errors.Wrap(err, "error encoding leaf key")
+	}
 
 	serialNumber, err = rand.Int(rand.Reader, serialNumberLimit)
 	if err != nil {
@@ -69,7 +80,6 @@ func GenerateCerts(host string) (ca []byte, cert []byte, key []byte, err error) 
 		IsCA:                  false,
 		Subject:               pkix.Name{Organization: []string{"nil2"}},
 	}
-	hosts := strings.Split(host, ",")
 	for _, h := range hosts {
 		if ip := net.ParseIP(h); ip != nil {
 			leafTemplate.IPAddresses = append(leafTemplate.IPAddresses, ip)
