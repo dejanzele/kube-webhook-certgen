@@ -7,6 +7,9 @@ lint: # lint code using golangci-lint
 test: # run tests using gotestsum
 	gotestsum ./...
 
+build: # build executable
+	go build -o kube-webhook-certgen
+
 docker-build: test ## Run tests and build docker image.
 	docker build -t ${IMG} .
 
