@@ -18,10 +18,10 @@ checksum:
 dockers:
   -
     image_templates:
-      - "ghcr.io/dejanzele/kube-webhook-certgen:{{ .Major }}"
-      - "ghcr.io/dejanzele/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}"
-      - "ghcr.io/dejanzele/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
-      - "ghcr.io/dejanzele/kube-webhook-certgen:latest"
+      - "dpejcev/kube-webhook-certgen:{{ .Major }}"
+      - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}"
+      - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+      - "dpejcev/kube-webhook-certgen:latest"
     dockerfile: Dockerfile
 
 dist: "build/dist"
@@ -35,6 +35,11 @@ release:
     - [Linux Intel 64 bit](https://github.com/dejanzele/kube-webhook-certgen/releases/download/{{ .Tag }}/kube-webhook-certgen_{{ .Version }}_linux_x86_64.zip)
     - [MacOS Universal](https://github.com/dejanzele/kube-webhook-certgen/releases/download/{{ .Tag }}/kube-webhook-certgen_{{ .Version }}_macos_all.zip)
     - [Windows Intel 64 bit](https://github.com/dejanzele/kube-webhook-certgen/releases/download/{{ .Tag }}/kube-webhook-certgen{{ .Version }}_windows_x86_64.zip)
+    ## Docker images
+    - `docker pull dpejcev/kube-webhook-certgen:{{ .Major }}`
+    - `docker pull dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}`
+    - `docker pull dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}`
+    - `docker pull dpejcev/kube-webhook-certgen:latest`
 
 snapshot:
   name_template: "{{ .Tag }}"
