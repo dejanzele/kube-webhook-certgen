@@ -11,9 +11,6 @@ archives:
 
 changelog:
   use: "github"
-  filters:
-    exclude:
-      - "^V2:"
 
 checksum:
   name_template: "checksums.txt"

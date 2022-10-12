@@ -2,7 +2,7 @@
 IMG ?= dpejcev/kube-webhook-certgen:latest
 
 lint: # lint code using golangci-lint
-	golangci-lint run
+	golangci-lint run --max-issues-per-linter=0 --sort-results ./...
 
 test: # run tests using gotestsum
 	gotestsum ./...

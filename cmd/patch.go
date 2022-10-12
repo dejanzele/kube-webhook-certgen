@@ -18,7 +18,7 @@ import (
 var patch = &cobra.Command{
 	Use:    "patch",
 	Short:  "Patch a ValidatingWebhookConfiguration, MutatingWebhookConfiguration and CustomResourceDefinition",
-	Long:   "Patch a ValidatingWebhookConfiguration and MutatingWebhookConfiguration 'webhook-name' by using the ca from 'secret-name' in 'namespace'",
+	Long:   "Patch a ValidatingWebhookConfiguration and MutatingWebhookConfiguration 'webhook-name' and CustomResourceDefinitions by using the ca from 'secret-name' in 'namespace'",
 	PreRun: prePatchCommand,
 	RunE:   patchCommand,
 }
