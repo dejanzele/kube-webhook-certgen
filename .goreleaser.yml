@@ -31,10 +31,6 @@ release:
   header: |
     ## {{ .Version }} ({{ .Date }})
     See https://github.com/dejanzele/kube-webhook-certgen for download links and documentation
-    ## Main downloads
-    - [Linux Intel 64 bit](https://github.com/dejanzele/kube-webhook-certgen/releases/download/{{ .Tag }}/kube-webhook-certgen_{{ .Version }}_linux_x86_64.zip)
-    - [MacOS Universal](https://github.com/dejanzele/kube-webhook-certgen/releases/download/{{ .Tag }}/kube-webhook-certgen_{{ .Version }}_macos_all.zip)
-    - [Windows Intel 64 bit](https://github.com/dejanzele/kube-webhook-certgen/releases/download/{{ .Tag }}/kube-webhook-certgen{{ .Version }}_windows_x86_64.zip)
     ## Docker images
     - `docker pull dpejcev/kube-webhook-certgen:{{ .Major }}`
     - `docker pull dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}`
