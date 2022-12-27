@@ -24,15 +24,6 @@ jobs:
         with:
           username: "${{ secrets.DOCKERHUB_USERNAME }}"
           password: "${{ secrets.DOCKERHUB_TOKEN }}"
-      - name: "Cache"
-        uses: "actions/cache@v3"
-        with:
-          path: "~/go/pkg/mod"
-          key: "${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}"
-          restore-keys: |
-            ${{ runner.os }}-go-
-      - name: "Modules"
-        run: "go mod tidy"
       - name: "Release"
         uses: "goreleaser/goreleaser-action@v3"
         with:

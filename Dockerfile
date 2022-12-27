@@ -1,6 +1,4 @@
-FROM alpine:3.16.2
-
-RUN apk add --update --no-cache libc6-compat
+FROM alpine:3.17.0
 
 COPY kube-webhook-certgen /kube-webhook-certgen
 
@@ -8,7 +6,7 @@ ARG USER=default
 ENV HOME /home/$USER
 
 # install sudo as root
-RUN apk add --update sudo libc6-compat
+RUN apk add --update sudo
 
 # add new user
 RUN adduser -D $USER \
