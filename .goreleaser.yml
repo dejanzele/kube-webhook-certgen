@@ -131,6 +131,12 @@ release:
 snapshot:
   name_template: "{{ .Tag }}"
 
+archives:
+  - format: zip
+    wrap_in_directory: "false"
+    files:
+      - none*
+
 source:
   enabled: true
   name_template: "{{ .ProjectName }}_{{ .Version }}_source"
