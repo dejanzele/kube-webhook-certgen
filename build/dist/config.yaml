@@ -1,0 +1,215 @@
+project_name: kube-webhook-certgen
+release:
+  github:
+    owner: dejanzele
+    name: kube-webhook-certgen
+  name_template: '{{.Tag}}'
+  header: |
+    ## {{ .Version }} ({{ .Date }})
+    See https://github.com/dejanzele/kube-webhook-certgen for download links and documentation
+    ## Docker images
+    - `docker pull dpejcev/kube-webhook-certgen:{{ .Major }}`
+    - `docker pull dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}`
+    - `docker pull dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}`
+    - `docker pull dpejcev/kube-webhook-certgen:latest`
+scoop:
+  name: kube-webhook-certgen
+  commit_author:
+    name: goreleaserbot
+    email: goreleaser@carlosbecker.com
+  commit_msg_template: Scoop update for {{ .ProjectName }} version {{ .Tag }}
+builds:
+- id: linux
+  goos:
+  - linux
+  goarch:
+  - amd64
+  - arm
+  - arm64
+  goarm:
+  - "6"
+  - "7"
+  gomips:
+  - hardfloat
+  targets:
+  - linux_amd64
+  - linux_arm_6
+  - linux_arm_7
+  - linux_arm64
+  dir: .
+  main: .
+  ldflags:
+  - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+    -X main.builtBy=goreleaser
+  binary: kube-webhook-certgen
+  env:
+  - CGO_ENABLED=0
+  builder: go
+  mod_timestamp: '{{ .CommitTimestamp }}'
+  gobinary: go
+archives:
+- id: default
+  builds:
+  - linux
+  name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm
+    }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}'
+  format: tar.gz
+  files:
+  - src: license*
+  - src: LICENSE*
+  - src: readme*
+  - src: README*
+  - src: changelog*
+  - src: CHANGELOG*
+snapshot:
+  name_template: '{{ .Tag }}'
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+dockers:
+- goos: linux
+  goarch: amd64
+  dockerfile: Dockerfile
+  image_templates:
+  - dpejcev/kube-webhook-certgen:{{ .Major }}-amd64
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-amd64
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64
+  - dpejcev/kube-webhook-certgen:latest-amd64
+  build_flag_templates:
+  - --platform=linux/amd64
+  - --label=org.opencontainers.image.created={{.Date}}
+  - --label=org.opencontainers.image.title={{.ProjectName}}
+  - --label=org.opencontainers.image.revision={{.FullCommit}}
+  - --label=org.opencontainers.image.version={{.Version}}
+  use: buildx
+- goos: linux
+  goarch: arm64
+  dockerfile: Dockerfile
+  image_templates:
+  - dpejcev/kube-webhook-certgen:{{ .Major }}-arm64v8
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-arm64v8
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64v8
+  - dpejcev/kube-webhook-certgen:latest-arm64v8
+  build_flag_templates:
+  - --platform=linux/arm64/v8
+  - --label=org.opencontainers.image.created={{.Date}}
+  - --label=org.opencontainers.image.title={{.ProjectName}}
+  - --label=org.opencontainers.image.revision={{.FullCommit}}
+  - --label=org.opencontainers.image.version={{.Version}}
+  use: buildx
+- goos: linux
+  goarch: arm
+  goarm: "6"
+  dockerfile: Dockerfile
+  image_templates:
+  - dpejcev/kube-webhook-certgen:{{ .Major }}-armv6
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-armv6
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-armv6
+  - dpejcev/kube-webhook-certgen:latest-armv6
+  build_flag_templates:
+  - --platform=linux/arm/v6
+  - --label=org.opencontainers.image.created={{.Date}}
+  - --label=org.opencontainers.image.title={{.ProjectName}}
+  - --label=org.opencontainers.image.revision={{.FullCommit}}
+  - --label=org.opencontainers.image.version={{.Version}}
+  use: buildx
+- goos: linux
+  goarch: arm
+  goarm: "7"
+  dockerfile: Dockerfile
+  image_templates:
+  - dpejcev/kube-webhook-certgen:{{ .Major }}-armv7
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-armv7
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-armv7
+  - dpejcev/kube-webhook-certgen:latest-armv7
+  build_flag_templates:
+  - --platform=linux/arm/v7
+  - --label=org.opencontainers.image.created={{.Date}}
+  - --label=org.opencontainers.image.title={{.ProjectName}}
+  - --label=org.opencontainers.image.revision={{.FullCommit}}
+  - --label=org.opencontainers.image.version={{.Version}}
+  use: buildx
+docker_manifests:
+- name_template: dpejcev/kube-webhook-certgen:{{ .Major }}
+  image_templates:
+  - dpejcev/kube-webhook-certgen:{{ .Major }}-amd64
+  - dpejcev/kube-webhook-certgen:{{ .Major }}-arm64v8
+  - dpejcev/kube-webhook-certgen:{{ .Major }}-armv6
+  - dpejcev/kube-webhook-certgen:{{ .Major }}-armv7
+  use: docker
+- name_template: dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}
+  image_templates:
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-amd64
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-arm64v8
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-armv6
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-armv7
+  use: docker
+- name_template: dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch
+    }}
+  image_templates:
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64v8
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-armv6
+  - dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-armv7
+  use: docker
+- name_template: dpejcev/kube-webhook-certgen:latest
+  image_templates:
+  - dpejcev/kube-webhook-certgen:latest-amd64
+  - dpejcev/kube-webhook-certgen:latest-arm64v8
+  - dpejcev/kube-webhook-certgen:latest-armv6
+  - dpejcev/kube-webhook-certgen:latest-armv7
+  use: docker
+changelog:
+  use: github
+dist: build/dist
+env_files:
+  github_token: ~/.config/goreleaser/github_token
+  gitlab_token: ~/.config/goreleaser/gitlab_token
+  gitea_token: ~/.config/goreleaser/gitea_token
+source:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_source'
+  format: zip
+  enabled: true
+gomod:
+  gobinary: go
+announce:
+  twitter:
+    message_template: '{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL
+      }}'
+  reddit:
+    title_template: '{{ .ProjectName }} {{ .Tag }} is out!'
+    url_template: '{{ .ReleaseURL }}'
+  slack:
+    message_template: '{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL
+      }}'
+    username: GoReleaser
+  discord:
+    message_template: '{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL
+      }}'
+    author: GoReleaser
+    color: "3888754"
+    icon_url: https://goreleaser.com/static/avatar.png
+  teams:
+    title_template: '{{ .ProjectName }} {{ .Tag }} is out!'
+    message_template: '{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL
+      }}'
+    color: '#2D313E'
+    icon_url: https://goreleaser.com/static/avatar.png
+  smtp:
+    subject_template: '{{ .ProjectName }} {{ .Tag }} is out!'
+    body_template: 'You can view details from: {{ .ReleaseURL }}'
+  mattermost:
+    message_template: '{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL
+      }}'
+    title_template: '{{ .ProjectName }} {{ .Tag }} is out!'
+    username: GoReleaser
+  linkedin:
+    message_template: '{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL
+      }}'
+  telegram:
+    message_template: '{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL
+      }}'
+github_urls:
+  download: https://github.com
+gitlab_urls:
+  download: https://gitlab.com
