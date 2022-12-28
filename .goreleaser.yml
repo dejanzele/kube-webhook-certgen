@@ -19,15 +19,15 @@ builds:
 
 dockers:
   -
+    dockerfile: Dockerfile
+    use: buildx
+    goos: linux
+    goarch: amd64
     image_templates:
       - "dpejcev/kube-webhook-certgen:{{ .Major }}-amd64"
       - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-amd64"
       - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
       - "dpejcev/kube-webhook-certgen:latest-amd64"
-    dockerfile: Dockerfile
-    use: buildx
-    goos: linux
-    goarch: amd64
     build_flag_templates:
       - "--platform=linux/amd64"
       - "--label=org.opencontainers.image.created={{.Date}}"
@@ -35,15 +35,15 @@ dockers:
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
   -
+    dockerfile: Dockerfile
+    use: buildx
+    goos: linux
+    goarch: arm64
     image_templates:
       - "dpejcev/kube-webhook-certgen:{{ .Major }}-arm64v8"
       - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-arm64v8"
       - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64v8"
       - "dpejcev/kube-webhook-certgen:latest-arm64v8"
-    dockerfile: Dockerfile
-    use: buildx
-    goos: linux
-    goarch: arm64
     build_flag_templates:
       - "--platform=linux/arm64/v8"
       - "--label=org.opencontainers.image.created={{.Date}}"
@@ -51,16 +51,16 @@ dockers:
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
   -
-    image_templates:
-      - "dpejcev/kube-webhook-certgen:{{ .Major }}-armv6"
-      - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-armv6"
-      - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-armv6"
-      - "dpejcev/kube-webhook-certgen:latest-armv6"
     dockerfile: Dockerfile
     use: buildx
     goos: linux
     goarch: arm
     goarm: 6
+    image_templates:
+      - "dpejcev/kube-webhook-certgen:{{ .Major }}-armv6"
+      - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-armv6"
+      - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-armv6"
+      - "dpejcev/kube-webhook-certgen:latest-armv6"
     build_flag_templates:
       - "--platform=linux/arm/v6"
       - "--label=org.opencontainers.image.created={{.Date}}"
@@ -68,16 +68,16 @@ dockers:
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
   -
-    image_templates:
-      - "dpejcev/kube-webhook-certgen:{{ .Major }}-armv7"
-      - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-armv7"
-      - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-armv7"
-      - "dpejcev/kube-webhook-certgen:latest-armv7"
     dockerfile: Dockerfile
     use: buildx
     goos: linux
     goarch: arm
     goarm: 7
+    image_templates:
+      - "dpejcev/kube-webhook-certgen:{{ .Major }}-armv7"
+      - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}-armv7"
+      - "dpejcev/kube-webhook-certgen:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-armv7"
+      - "dpejcev/kube-webhook-certgen:latest-armv7"
     build_flag_templates:
       - "--platform=linux/arm/v7"
       - "--label=org.opencontainers.image.created={{.Date}}"
